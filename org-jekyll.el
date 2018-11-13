@@ -72,6 +72,16 @@
   :group 'org-jekyll)
 
 
+;;;###autoload
+(defun org-jekyll-github-open ()
+  "Open github page."
+  (interactive)
+  (shell-command
+   (format
+    "open '%s'"
+    org-jekyll-github)))
+
+
 (defvar org-jekyll-jekyll-process nil
   "Jekyll server process.")
 
