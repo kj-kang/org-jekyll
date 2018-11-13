@@ -271,18 +271,18 @@ LAYOUT, AUTHOR, DATE, TITLE, DESCRIPTION, TAGS, CATEGORIES."
 
 
 (defun org-jekyll-read-options (org-file)
-  "Read metadata from ORG-FILE."
+  "Read options from ORG-FILE."
   (org-jekyll--read-options org-file))
 
 
-(defun org-jekyll-insert-options (metadata html-file)
-  "Insert METADATA to HTML-FILE."
+(defun org-jekyll-insert-options (options html-file)
+  "Insert OPTIONS to HTML-FILE."
   (let* ((visiting    (find-buffer-visiting html-file))
 	 (work-buffer (or visiting (find-file-noselect html-file)))
-	 (layout      (plist-get metadata :layout))
-	 (title       (plist-get metadata :title))
-	 (categories  (plist-get metadata :categories))
-	 (tags        (plist-get metadata :tags)))
+	 (layout      (plist-get options :layout))
+	 (title       (plist-get options :title))
+	 (categories  (plist-get options :categories))
+	 (tags        (plist-get options :tags)))
     (save-excursion
       (with-current-buffer work-buffer
 	(goto-char (point-min))
@@ -296,6 +296,31 @@ LAYOUT, AUTHOR, DATE, TITLE, DESCRIPTION, TAGS, CATEGORIES."
       (unless visiting (kill-buffer work-buffer)))))
 
 
+(defun org-jekyll-fix-image-links (html-file)
+  "Modify image links in HTML-FILE."
+  (let* ((visiting    (find-buffer-visiting html-file))
+	 (work-buffer (or visiting (find-file-noselect html-file))))
+    (save-match-data
+      (save-excursion
+	(with-current-buffer work-buffer
+	  (goto-char (point-min))
+	  (while (search-forward-regexp "[^\"]*.png" nil t 1)
+	    (let ((matched (match-string 0)))
+	      (when (string= "./" (substring matched 0 2))
+		(replace-match (concat "https://github.daumkakao.com/pages/jayden-kang/images" (substring matched 1)))))
+	    (replace-match (match-string 0)))
+	  (save-buffer))))
+    (unless visiting (kill-buffer work-buffer))))
+
+
+(defun org-jekyll-git-commit-and-push ()
+  "Commit post and push to github."
+  (interactive)
+  (let ((default-directory org-jekyll-jekyll-directory))
+    (shell-command "git commit _post/* -m \"post commit\"")
+    (shell-command "git push")))
+
+
 (defun org-jekyll-publish-draft (org-file)
   "Publish ORG-FILE to HTML."
   (let* ((metadata  (org-jekyll-read-options org-file))
@@ -307,6 +332,8 @@ LAYOUT, AUTHOR, DATE, TITLE, DESCRIPTION, TAGS, CATEGORIES."
 		     ".html")))
     (org-export-to-file 'html html-file nil nil nil t nil nil)
     (org-jekyll-insert-options metadata html-file)
+    (org-jekyll-fix-image-links html-file)
+    (org-jekyll-git-commit-and-push)
     (message (format "%s published." html-file))))
 
 
