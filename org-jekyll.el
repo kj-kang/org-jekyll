@@ -66,6 +66,12 @@
   :group 'org-jekyll)
 
 
+(defcustom org-jekyll-github nil
+  "Github URL."
+  :type 'string
+  :group 'org-jekyll)
+
+
 (defvar org-jekyll-jekyll-process nil
   "Jekyll server process.")
 
@@ -307,7 +313,12 @@ LAYOUT, AUTHOR, DATE, TITLE, DESCRIPTION, TAGS, CATEGORIES."
 	  (while (search-forward-regexp "[^\"]*.png" nil t 1)
 	    (let ((matched (match-string 0)))
 	      (when (string= "./" (substring matched 0 2))
-		(replace-match (concat "https://github.daumkakao.com/pages/jayden-kang/images" (substring matched 1)))))
+		(replace-match
+		 (concat
+		  org-jekyll-github
+		  "/"
+		  "images"
+		  (substring matched 1)))))
 	    (replace-match (match-string 0)))
 	  (save-buffer))))
     (unless visiting (kill-buffer work-buffer))))
@@ -317,7 +328,7 @@ LAYOUT, AUTHOR, DATE, TITLE, DESCRIPTION, TAGS, CATEGORIES."
   "Commit post and push to github."
   (interactive)
   (let ((default-directory org-jekyll-jekyll-directory))
-    (shell-command "git commit _post/* -m \"post commit\"")
+    (shell-command "git commit _posts/* -m \"post commit\"")
     (shell-command "git push")))
 
 
