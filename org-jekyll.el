@@ -354,7 +354,6 @@ LAYOUT, AUTHOR, DATE, TITLE, DESCRIPTION, TAGS, CATEGORIES."
     (org-export-to-file 'html html-file nil nil nil t nil nil)
     (org-jekyll-insert-options metadata html-file)
     (org-jekyll-fix-image-links html-file)
-    (org-jekyll-git-commit-and-push)
     (message (format "%s published." html-file))))
 
 
