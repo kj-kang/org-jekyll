@@ -320,15 +320,30 @@ LAYOUT, AUTHOR, DATE, TITLE, DESCRIPTION, TAGS, CATEGORIES."
       (save-excursion
 	(with-current-buffer work-buffer
 	  (goto-char (point-min))
-	  (while (search-forward-regexp "[^\"]*.png" nil t 1)
+	  (while (search-forward-regexp "src=\"[^\"]*.[png|jpg]\"" nil t 1)
 	    (let ((matched (match-string 0)))
-	      (when (string= "./" (substring matched 0 2))
-		(replace-match
-		 (concat
-		  org-jekyll-github
-		  "/"
-		  "images"
-		  (substring matched 1)))))
+	      (message (format "====> %s" matched))
+	      (replace-match
+	       (concat
+		"src=\""
+		org-jekyll-github
+		"/"
+		"images"
+		"/"
+		(substring matched 5))))
+	    (replace-match (match-string 0)))
+	  (goto-char (point-min))
+	  (while (search-forward-regexp "data=\"[^\"]*.[svg]\"" nil t 1)
+	    (let ((matched (match-string 0)))
+	      (message (format "====> %s" matched))
+	      (replace-match
+	       (concat
+		"data=\""
+		org-jekyll-github
+		"/"
+		"images"
+		"/"
+		(substring matched 6))))
 	    (replace-match (match-string 0)))
 	  (save-buffer))))
     (unless visiting (kill-buffer work-buffer))))
