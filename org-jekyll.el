@@ -30,6 +30,11 @@
 (require 'kv)
 
 
+;; html 변환하는 경우 css 포함여부를 지정한다.
+;; (setq org-html-htmlize-output-type 'css)
+(setq org-html-htmlize-output-type 'inline-css)
+
+
 (defgroup org-jekyll nil
   "Publish org-mode to jekyll"
   :tag "org-jekyll"
@@ -51,6 +56,18 @@
 (defcustom org-jekyll-jekyll-directory nil
   "Path to jekyll."
   :type 'string
+  :group 'org-jekyll)
+
+
+(defcustom org-jekyll-jekyll-base-url nil
+  "Base URL to jekyll."
+  :type 'string
+  :group 'org-jekyll)
+
+
+(defcustom org-jekyll-jekyll-github-token nil
+  "Github Token."
+  :type  'string
   :group 'org-jekyll)
 
 
@@ -78,8 +95,9 @@
   (interactive)
   (shell-command
    (format
-    "open '%s'"
-    org-jekyll-github)))
+    "open '%s%s'"
+    org-jekyll-github
+    org-jekyll-jekyll-base-url)))
 
 
 (defvar org-jekyll-jekyll-process nil
@@ -116,9 +134,10 @@
   "Open the page provided the jekyll server in browser."
   (interactive)
   (shell-command
-   (format "open 'http://%s:%s'"
+   (format "open 'http://%s:%s/%s'"
 	   org-jekyll-jekyll-host
-	   org-jekyll-jekyll-port)))
+	   org-jekyll-jekyll-port
+	   org-jekyll-jekyll-base-url)))
 
 (defun org-jekyll-org-template (layout
 				author
